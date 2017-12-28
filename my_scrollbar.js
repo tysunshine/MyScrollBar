@@ -286,7 +286,7 @@
 		// 获取包裹层与滚动层的尺寸
 		this.getSize();
 
-		if ( this.iWrapperW < this.iScrollW && this.hasX ) {
+		if ( this.iWrapperW <= this.iScrollW && this.hasX ) {
 			this.bXBar = true;
 			
 			this.oXBox = dom.createElement('div');					// X轴滚动条盒子
@@ -296,7 +296,7 @@
 			this.oWrapper.insertBefore(this.oXBox, this.oScroll);	// 滚动条盒子插到oScroll之前
 		}
 
-		if ( this.iWrapperH < this.iScrollH && this.hasY ) {
+		if ( this.iWrapperH <= this.iScrollH && this.hasY ) {
 			this.bYBar = true;
 			
 			this.oYBox = dom.createElement('div');					// X轴滚动条盒子
@@ -461,8 +461,8 @@
 
 		var oOffset = getOffsetSize(obj);
 		return {
-			width: oOffset.width - iLeftW - iRightW,
-			height: oOffset.height - iTopW - iBottomW
+			width: oOffset.width <= 0 ? oOffset.width : oOffset.width - iLeftW - iRightW,
+			height: oOffset.height <= 0 ? oOffset.height : oOffset.height - iTopW - iBottomW
 		}
 	}
 
