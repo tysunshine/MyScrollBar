@@ -10,6 +10,7 @@
 	 * o.enterShow -> 是否为鼠标进入包裹层后显示滚动条 （默认true是）
 	 * o.hasY -> 是否需要Y轴滚动条（默认true需要）
 	 * o.hasX -> 是否需要X轴滚动条（默认false不需要）
+	 * o.borderRadius -> 滚公条圆弧的宽度（默认为o.width的一半）
 	 * 注：通过调用MyScrollBar.setSize()函数可以重置滚动条高度
 	 */
 	function MyScrollBar (o) {
@@ -23,7 +24,8 @@
 		this.iScrollTop = 0;					// 滚动内容的y轴滚动距离
 		this.iScrollLeft = 0;					// 滚动内容的x轴滚动距离
 
-		// this.bMax = true;								// 滚动条是否为最长，为最长时不做事
+		this.bYShow = false;					// y轴滚动条显示与否
+		this.bXShow = false;					// x轴滚动条显示与否
 
 		this.oWrapper = dom.getElementById(o.selId);		// 滚动盒子
 		this.oScroll = this.oWrapper.firstElementChild;		// 滚动内容
@@ -40,45 +42,55 @@
 		// 给包裹层设置默认定位
 		var sWPosition = getStyle(this.oWrapper, 'position');
 		if(sWPosition == 'static') {
-			this.oWrapper.style.position = 'relative';
+			setStyle(this.oWrapper, {
+				position: 'relative'
+			})
 		}
 
 		if ( this.bYBar ) {
-			this.oYBox.style.display = this.enterShow ? 'none' : 'block';		// 如果enterShow为true就是需要进入包裹层才显示滚动条
-			this.oYBox.style.position = "absolute";
-			this.oYBox.style.top = 0;
-			this.oYBox.style.right = 0;
-			this.oYBox.style.zIndex = 10;
-			this.oYBox.style.width = this.width + 'px';
-			this.oYBox.style.height = "100%";
-			this.oYBox.style.backgroundColor = this.bgColor;
 
-			this.oYBar.style.position = 'absolute';
-			this.oYBar.style.top = 0;
-			this.oYBar.style.left = 0;
-			this.oYBar.style.width = '100%';
-			this.oYBar.style.backgroundColor = this.barColor;
-			this.oYBar.style.borderRadius = this.width / 2 + 'px';
-			// this.oYBar.style.transition = 'all 50ms linear';					// ie过渡有问题
+			setStyle(this.oYBox, {
+				display: this.enterShow ? 'none' : 'block',			// 如果enterShow为true就是需要进入包裹层才显示滚动条
+				position: 'absolute',
+				top: 0,
+				right: 0,
+				zIndex: 10,
+				width: this.width + 'px',
+				height: '100%',
+				backgroundColor: this.bgColor
+			});
+
+			setStyle(this.oYBar, {
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				width: '100%',
+				backgroundColor: this.barColor,
+				borderRadius: this.borderRadius + 'px'
+			})
 		}
 
 		if ( this.bXBar ) {
-			this.oXBox.style.display = this.enterShow ? 'none' : 'block';		// 如果enterShow为true就是需要进入包裹层才显示滚动条
-			this.oXBox.style.position = "absolute";
-			this.oXBox.style.bottom = 0;
-			this.oXBox.style.left = 0;
-			this.oXBox.style.zIndex = 10;
-			this.oXBox.style.height = this.width + 'px';
-			this.oXBox.style.width = "100%";
-			this.oXBox.style.backgroundColor = this.bgColor;
 
-			this.oXBar.style.position = 'absolute';
-			this.oXBar.style.bottom = 0;
-			this.oXBar.style.left = 0;
-			this.oXBar.style.height = '100%';
-			this.oXBar.style.backgroundColor = this.barColor;
-			this.oXBar.style.borderRadius = this.width / 2 + 'px';
-			// this.oXBar.style.transition = 'all 50ms linear';
+			setStyle(this.oXBox, {
+				display: this.enterShow ? 'none' : 'block',			// 如果enterShow为true就是需要进入包裹层才显示滚动条
+				position: 'absolute',
+				bottom: 0,
+				left: 0,
+				zIndex: 10,
+				height: this.width + 'px',
+				width: '100%',
+				backgroundColor: this.bgColor
+			})
+
+			setStyle(this.oXBar, {
+				position: 'absolute',
+				bottom: 0,
+				left: 0,
+				height: '100%',
+				backgroundColor: this.barColor,
+				borderRadius: this.borderRadius + 'px'
+			})
 		}
 
 		this.setSize();		// 设置滚动条的宽高
@@ -93,7 +105,7 @@
 		if ( sUserAgent.indexOf('firefox') != -1 ) {
 			// 火狐浏览器滚轴滚动
 			this.oWrapper.addEventListener('DOMMouseScroll', function (e) {
-				if ( _this.bYBar ) {
+				if ( _this.bYBar && _this.bYShow ) {
 					e.preventDefault();
 
 					_this.iScrollTop += e.detail > 0 ? 60 : -60;
@@ -105,7 +117,7 @@
 		} else {
 			// 谷歌、ie滚轴滚动
 			this.oWrapper.onmousewheel = function (evt) {
-				if ( _this.bYBar ) {
+				if ( _this.bYBar && _this.bYShow ) {
 					var e = evt || win.event;
 					evt ? e.preventDefault() : e.returnValue = false;
 
@@ -122,22 +134,30 @@
 		this.oWrapper.onmouseenter = function () {
 			isInWrapper = true;
 			if ( _this.enterShow ) {
-				if ( _this.bYBar ) {
-					_this.oYBox.style.display = 'block';
+				if ( _this.bYBar && _this.bYShow ) {
+					setStyle(_this.oYBox, {
+						display: 'block'
+					})
 				}
-				if ( _this.bXBar ) {
-					_this.oXBox.style.display = 'block';
+				if ( _this.bXBar && _this.bXShow ) {
+					setStyle(_this.oXBox, {
+						display: 'block'
+					})
 				}
 			}
 		}
 		this.oWrapper.onmouseleave = function () {
 			isInWrapper = false;
 			if ( _this.enterShow ) {
-				if ( _this.bYBar && !bYDown ) {
-					_this.oYBox.style.display = 'none';
+				if ( _this.bYBar && !bYDown && _this.bYShow ) {
+					setStyle(_this.oYBox, {
+						display: 'none'
+					})
 				}
-				if ( _this.bXBar && !bXDown ) {
-					_this.oXBox.style.display = 'none';
+				if ( _this.bXBar && !bXDown && _this.bXShow ) {
+					setStyle(_this.oXBox, {
+						display: 'none'
+					})
 				}
 			}
 		}
@@ -150,38 +170,34 @@
 		if ( _this.bYBar ) {
 			// 鼠标在Y轴滚动条按下
 			this.oYBar.onmousedown = function (e) {
-				bYDown = true;
-				iDownPageY = e.clientY + dom.documentElement.scrollTop || dom.body.scrollTop;
-				iYBarTop = parseInt(getStyle(this, 'top'));
+				if ( _this.bYShow ) {
+					bYDown = true;
+					iDownPageY = e.clientY + dom.documentElement.scrollTop || dom.body.scrollTop;
+					iYBarTop = parseInt(getStyle(this, 'top'));
 
-				// 禁止文本可选中
-				dom.body.style.mozUserSelect = 'none';
-				dom.body.style.webkitUserSelect = 'none';
-				dom.body.style.msUserSelect = 'none';
-				dom.body.style.khtmlUserSelect = 'none';
-				dom.body.style.userSelect = 'none';
+					// 禁止文本可选中
+					canSelectText(false);
+				}
 			}
 
 			// 鼠标在按下Y轴滚动条后抬起
 			dom.addEventListener('mouseup', function () {
-				if ( bYDown ) {
+				if ( bYDown && _this.bYShow ) {
 					bYDown = false;
 					// 恢复文本可选中
-					dom.body.style.mozUserSelect = 'text';
-	    			dom.body.style.webkitUserSelect = 'text';
-	    			dom.body.style.msUserSelect = 'text';
-					dom.body.style.khtmlUserSelect = 'text';
-	    			dom.body.style.userSelect = 'text';
+					canSelectText(true);
 
 	    			if ( !isInWrapper && _this.enterShow ) {
-	    				_this.oYBox.style.display = 'none';
+	    				setStyle(_this.oYBox, {
+	    					display: 'none'
+	    				})
 	    			}
 				}
 			})
 
 			// 鼠标按下Y轴滚动条后拖动
 			dom.addEventListener('mousemove', function (e) {
-				if ( bYDown ) {
+				if ( bYDown && _this.bYShow ) {
 					var iNowPageY = e.clientY + dom.documentElement.scrollTop || dom.body.scrollTop;
 					var iNowTop = iYBarTop + iNowPageY - iDownPageY;
 
@@ -202,34 +218,34 @@
 		if ( this.bXBar ) {
 			// 鼠标在X轴滚动条按下
 			this.oXBar.onmousedown = function (e) {
-				bXDown = true;
-				iDownPageX = e.clientX + dom.documentElement.scrollLeft || dom.body.scrollLeft;
-				iXBarLeft = parseInt(getStyle(this, 'left'));
+				if ( _this.bXShow ) {
+					bXDown = true;
+					iDownPageX = e.clientX + dom.documentElement.scrollLeft || dom.body.scrollLeft;
+					iXBarLeft = parseInt(getStyle(this, 'left'));
 
-				// 禁止文本可选中
-				dom.body.style.mozUserSelect = 'none';
-				dom.body.style.webkitUserSelect = 'none';
-				dom.body.style.userSelect = 'none';
+					// 禁止文本可选中
+	    			canSelectText(false);
+				}
 			}
 
 			// 鼠标在按下X轴滚动条后抬起
 			dom.addEventListener('mouseup', function () {
-				if ( bXDown ) {
+				if ( bXDown && _this.bXShow ) {
 					bXDown = false;
 					// 恢复文本可选中
-					dom.body.style.mozUserSelect = 'text';
-	    			dom.body.style.webkitUserSelect = 'text';
-	    			dom.body.style.userSelect = 'text';
+	    			canSelectText(true);
 
 	    			if ( !isInWrapper && _this.enterShow ) {
-	    				_this.oXBox.style.display = 'none';
+	    				setStyle(_this.oXBox, {
+	    					display: 'none'
+	    				})
 	    			}
 	    		}
 			})
 
 			// 鼠标按下X轴滚动条后拖动
 			dom.addEventListener('mousemove', function (e) {
-				if ( bXDown ) {
+				if ( bXDown && _this.bXShow ) {
 					var iNowPageX = e.clientX + dom.documentElement.scrollLeft || dom.body.scrollLeft;
 					var iNowLeft = iXBarLeft + iNowPageX - iDownPageX;
 
@@ -261,6 +277,8 @@
 		this.hasY = o.hasY === false ? false : true;
 
 		this.hasX = o.hasX === true ? true : false;
+
+		this.borderRadius = o.borderRadius >= 0 ? o.borderRadius : this.width / 2;
 	}
 
 	// 判断是否添加XY轴滚动条
@@ -316,13 +334,43 @@
 		this.getSize();
 
 		if ( this.bYBar ) {
-			this.oYBar.style.height = this.iYBarH + 'px';
-			this.oYBar.style.top = 0;
+			if ( this.iWrapperH >= this.iScrollH ) {
+				setStyle(this.oYBox, {
+					display: 'none'
+				})
+				this.bYShow = false;
+			} else {
+				if ( !this.enterShow ) {
+					setStyle(this.oYBox, {
+						display: 'block'
+					})
+				}
+				setStyle(this.oYBar, {
+					height: this.iYBarH + 'px',
+					top: 0
+				})
+				this.bYShow = true;
+			}
 		}
 
 		if ( this.bXBar ) {
-			this.oXBar.style.width = this.iXBarW + 'px';
-			this.oXBar.style.left = 0;
+			if ( this.iWrapperW >= this.iScrollW ) {
+				setStyle(this.oXBox, {
+					display: 'none'
+				})
+				this.bXShow = false;
+			} else {
+				if ( !this.enterShow ) {
+					setStyle(this.oXBox, {
+						display: 'block'
+					})
+				}
+				setStyle(this.oXBar, {
+					width: this.iXBarW + 'px',
+					left: 0
+				})
+				this.bXShow = true;
+			}
 		}
 
 		this.iScrollTop = 0;
@@ -333,21 +381,27 @@
 	// 设置oScroll的位置转换transform:translate
 	MyScrollBar.prototype.setTransLate = function () {
 		var sTranslate = 'translate(-' + this.iScrollLeft + 'px, -' + this.iScrollTop + 'px)';
-		this.oScroll.style.transform = sTranslate;
-		this.oScroll.style.msTransform = sTranslate; 
-		this.oScroll.style.mozTransform = sTranslate; 
-		this.oScroll.style.webkitTransform = sTranslate; 
-		this.oScroll.style.oTransform = sTranslate; 
+		setStyle(this.oScroll, {
+			transform: sTranslate,
+			msTransform: sTranslate,
+			mozTransform: sTranslate,
+			webkitTransform: sTranslate,
+			oTransform: sTranslate,
+		})
 	}
 
 	// 设置滚动top
 	MyScrollBar.prototype.setYTop = function (iTop) {
-		this.oYBar.style.top = iTop + 'px';
+		setStyle(this.oYBar, {
+			top: iTop + 'px'
+		})
 	}
 
 	// 设置滚动left
 	MyScrollBar.prototype.setXLeft = function (iLeft) {
-		this.oXBar.style.left = iLeft + 'px';
+		setStyle(this.oXBar, {
+			left: iLeft + 'px'
+		})
 	}
 
 	// 获取样式
@@ -359,11 +413,18 @@
 		}
 	}
 
+	// 设置样式
+	function setStyle (obj, oStyle) {
+        for(var i in oStyle) {
+            obj.style[i] = oStyle[i];
+        }
+    }
+
 	/**
 	 * 作用：获取对象的offset（内容尺寸+padding+border）尺寸，display:none;元素也可以获取
 	 * 参数：obj -> 要获取尺寸的元素
 	 * 返回：res -> width 宽; res -> height 高
-	 * 依赖：getStyle
+	 * 依赖：getStyle，setStyle
 	 */
 	function getOffsetSize (obj) {
 	    var sDisplay = getStyle(obj, "display");
@@ -389,12 +450,6 @@
 	        setStyle(obj, oldStyle);
 	    }
 	    return res;
-
-	    function setStyle (obj, oStyle) {
-	        for(var i in oStyle) {
-	            obj.style[i] = oStyle[i];
-	        }
-	    }
 	}
 
 	// 计算实际内容+padding宽高即clientWidth/clientHeight，但ie时client包含边框
@@ -408,6 +463,23 @@
 		return {
 			width: oOffset.width - iLeftW - iRightW,
 			height: oOffset.height - iTopW - iBottomW
+		}
+	}
+
+	// 禁止与恢复文本可选中,true为可选中，false为不可选中
+	function canSelectText (bCan) {
+		if ( !bCan ) {
+			dom.body.style.mozUserSelect = 'none';
+			dom.body.style.webkitUserSelect = 'none';
+			dom.body.style.msUserSelect = 'none';
+			dom.body.style.khtmlUserSelect = 'none';
+			dom.body.style.userSelect = 'none';
+		} else {
+			dom.body.style.mozUserSelect = 'text';
+			dom.body.style.webkitUserSelect = 'text';
+			dom.body.style.msUserSelect = 'text';
+			dom.body.style.khtmlUserSelect = 'text';
+			dom.body.style.userSelect = 'text';
 		}
 	}
 
