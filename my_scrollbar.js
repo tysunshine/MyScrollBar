@@ -312,18 +312,23 @@
 		var oWrapperSize = getClientSize(this.oWrapper);
 		var oScrollSize = getClientSize(this.oScroll);
 
-		this.iWrapperW = oWrapperSize.width;
-		this.iWrapperH = oWrapperSize.height;
+		this.iPaddingT = parseInt(getStyle(this.oWrapper, 'paddingTop'));
+		this.iPaddingR = parseInt(getStyle(this.oWrapper, 'paddingRight'));
+		this.iPaddingB = parseInt(getStyle(this.oWrapper, 'paddingBottom'));
+		this.iPaddingL = parseInt(getStyle(this.oWrapper, 'paddingLeft'));
+
+		this.iWrapperW = oWrapperSize.width - this.iPaddingR - this.iPaddingL;
+		this.iWrapperH = oWrapperSize.height - this.iPaddingT - this.iPaddingB;
 		this.iScrollW = oScrollSize.width;
 		this.iScrollH = oScrollSize.height;
 
 		if ( this.bYBar ) {
-			this.iYBoxH = this.iWrapperH;
+			this.iYBoxH = oWrapperSize.height;
 			this.iYBarH = this.iWrapperH / this.iScrollH * this.iYBoxH;
 		}
 
 		if ( this.bXBar ) {
-			this.iXBoxW = this.iWrapperW;
+			this.iXBoxW = oWrapperSize.width;
 			this.iXBarW = this.iWrapperW /this.iScrollW * this.iXBoxW;
 		}
 	}
