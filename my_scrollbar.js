@@ -165,9 +165,28 @@
 
 		// 鼠标在滚动条上按下，想要拖动
 		var bYDown = false, bXDown = false;		// 在滚动条上是否按下
+		var bYLeave = true, bXLeave = true;		// 是否离开
 		var iDownPageY = 0, iDownPageX = 0;		// 按下时鼠标到页面顶部的距离
 		var iYBarTop = 0, iXBarLeft = 0;		// 按下时滚动条的top/left
-		if ( _this.bYBar ) {
+		if ( this.bYBar ) {
+			// 鼠标移上Y轴滚动条变色
+			if ( this.enterColor ) {
+				this.oYBar.onmouseenter = function () {
+					bYLeave = false;
+					setStyle(this, {
+						backgroundColor: _this.enterColor
+					})
+				}
+				this.oYBar.onmouseleave = function () {
+					bYLeave = true;
+					if ( !bYDown ) {
+						setStyle(this, {
+							backgroundColor: _this.barColor
+						})
+					}
+				}
+			}
+				
 			// 鼠标在Y轴滚动条按下
 			this.oYBar.onmousedown = function (e) {
 				if ( _this.bYShow ) {
@@ -193,6 +212,11 @@
 	    				})
 	    			}
 				}
+				if ( !bYDown && bYLeave ) {
+					setStyle(_this.oYBar, {
+						backgroundColor: _this.barColor
+					})
+				}
 			})
 
 			// 鼠标按下Y轴滚动条后拖动
@@ -216,6 +240,24 @@
 		}
 
 		if ( this.bXBar ) {
+			// 鼠标移上Y轴滚动条变色
+			if ( this.enterColor ) {
+				this.oXBar.onmouseenter = function () {
+					bXLeave = false;
+					setStyle(this, {
+						backgroundColor: _this.enterColor
+					})
+				}
+				this.oXBar.onmouseleave = function () {
+					bXLeave = true;
+					if ( !bXDown ) {
+						setStyle(this, {
+							backgroundColor: _this.barColor
+						})
+					}
+				}
+			}
+
 			// 鼠标在X轴滚动条按下
 			this.oXBar.onmousedown = function (e) {
 				if ( _this.bXShow ) {
@@ -240,6 +282,12 @@
 	    					display: 'none'
 	    				})
 	    			}
+	    		}
+
+	    		if ( !bXDown && bXLeave ) {
+	    			setStyle(_this.oXBar, {
+	    				backgroundColor: _this.barColor
+	    			})
 	    		}
 			})
 
@@ -266,19 +314,21 @@
 
 	// 设置默认参数
 	MyScrollBar.prototype.setParam = function (o) {
-		this.width = o.width ? o.width : 10;
+		this.width = o.width ? o.width : 10;					// 滚动条的宽度
 
-		this.bgColor = o.bgColor ? o.bgColor : '#eaeaea';
+		this.bgColor = o.bgColor ? o.bgColor : '#eaeaea';		// 滚动条背景颜色
 
-		this.barColor = o.barColor ? o.barColor : '#ccc';
+		this.barColor = o.barColor ? o.barColor : '#ccc';		// 滚动条颜色
 
-		this.enterShow = o.enterShow === false ? false : true;
+		this.enterColor = o.enterColor || false;			// 鼠标移上滚动条时的颜色
 
-		this.hasY = o.hasY === false ? false : true;
+		this.enterShow = o.enterShow === false ? false : true;	// 是否进入包裹层在显示滚动条
 
-		this.hasX = o.hasX === true ? true : false;
+		this.hasY = o.hasY === false ? false : true;			// 是否有Y轴滚动条
 
-		this.borderRadius = o.borderRadius >= 0 ? o.borderRadius : this.width / 2;
+		this.hasX = o.hasX === true ? true : false;				// 是否有X轴滚动条
+
+		this.borderRadius = o.borderRadius >= 0 ? o.borderRadius : this.width / 2;	// 圆角
 	}
 
 	// 判断是否添加XY轴滚动条
